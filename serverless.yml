@@ -1,0 +1,42 @@
+service: botler
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: ca-central-1
+  environment:
+    TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
+
+functions:
+  # This means whenever someone send a message to botler, the router function in the hander.py file is triggered.
+  post:
+    handler: handler.router
+    events:
+      - http:
+          path: botler
+          method: any
+          cors: true
+
+  # The following handlers are daily/monthly stuff that are triggered automatically.
+  monday:
+    # Trigger the monday function in the handler.py file
+    handler: handler.monday
+    events:
+      # On monday at 13:00 UTC time.
+      - schedule: cron(0 13 ? * MON *)
+
+  wednesday:
+    handler: handler.wednesday
+    events:
+      - schedule: cron(0 13 ? * WED *)
+
+  thursday:
+    handler: handler.thursday
+    events:
+      - schedule: cron(0 13 ? * THU *)
+
+  monthly:
+    handler: handler.monthly
+    events:
+      - schedule: cron(0 13 1 * ? *)
